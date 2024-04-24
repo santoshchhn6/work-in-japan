@@ -1,6 +1,20 @@
-import logo from "../assets/logo.png";
+import { Link } from "react-router-dom";
+import Languages from "./Languages";
+import Logo from "./Logo";
 
 const Header = () => {
+  return (
+    <div className="bg-white shadow px-12 py-5 flex justify-center md:justify-between items-center">
+      <Logo />
+      <div className="flex items-center gap-5">
+        <Nav />
+        <Languages />
+      </div>
+    </div>
+  );
+};
+
+const Nav = () => {
   const navlist = [
     {
       title: "Home",
@@ -8,44 +22,28 @@ const Header = () => {
     },
     {
       title: "Jobs",
-      to: "/",
+      to: "/jobs",
     },
     {
       title: "About Us",
-      to: "/",
+      to: "/about",
     },
     {
       title: "Contact US",
-      to: "/",
+      to: "/contact",
     },
   ];
   return (
-    <nav className="bg-white shadow px-6 py-5 flex justify-center md:justify-between items-center">
-      <Logo />
-
-      <div className="hidden md:flex space-x-8">
-        {navlist.map((nav, index) => (
-          <a
-            key={index}
-            href="#"
-            className="text-gray-800 text-xl  hover:text-red-600 ease-out duration-300 "
-          >
-            {nav.title}
-          </a>
-        ))}
-      </div>
-    </nav>
-  );
-};
-
-const Logo = () => {
-  return (
-    <div className="flex items-center">
-      <img src={logo} alt="" className="w-10" />
-      <div className="text-gray-800 text-2xl font-bold ">
-        Work <span className="text-gray-500">in</span>{" "}
-        <span className="text-red-600">Japan</span>
-      </div>
+    <div className="hidden md:flex space-x-8">
+      {navlist.map((nav, index) => (
+        <Link
+          key={index}
+          to={nav.to}
+          className="text-gray-800 text-xl  hover:text-red-600 ease-out duration-300 "
+        >
+          {nav.title}
+        </Link>
+      ))}
     </div>
   );
 };

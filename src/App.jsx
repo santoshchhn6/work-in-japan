@@ -1,25 +1,23 @@
-import Cities from "./Components/Cities";
-import Footer from "./Components/Footer";
-import Header from "./Components/Header";
-import Hero from "./Components/Hero";
-import Why from "./Components/Why";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "./index.css";
+import About from "./Pages/About";
+import Contact from "./Pages/Contact";
+import Home from "./Pages/Home";
+import Layout from "./Layout";
+import Jobs from "./Pages/Jobs";
 
 function App() {
   return (
-    <div className="min-h-screen bg-gray-100">
-      <div className="max-w-[1920px] mx-auto">
-        <Header />
-        <Hero />
-
-        <main className="px-6 py-8">
-          <Why />
-          <Cities />
-        </main>
-
-        <Footer />
-      </div>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route element={<Layout />}>
+          <Route path="/jobs" element={<Jobs />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   );
 }
 

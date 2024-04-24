@@ -10,7 +10,7 @@ const Hero = () => {
       />
       <div className="absolute w-full aspect-[4/2] bg-black/50"></div>
       <div className="absolute w-full aspect-[4/2] flex justify-center items-center ">
-        <div className=" px-6  ">
+        <div className=" px-12  ">
           <h1 className=" text-2xl md:text-4xl font-bold text-white">
             Launch Your Career in Japan
           </h1>

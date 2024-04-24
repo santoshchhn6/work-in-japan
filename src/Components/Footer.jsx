@@ -7,10 +7,11 @@ import {
   FaTwitter,
 } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
+import Logo from "./Logo";
 
 const Footer = () => {
   return (
-    <footer className="bg-white shadow px-6 pt-6">
+    <footer className="bg-white shadow px-12 pt-6">
       <div className="flex flex-wrap gap-24">
         <NavLinks />
 
@@ -47,7 +48,7 @@ const NavLinks = () => {
   ];
   return (
     <div className=" w-fit">
-      <h1 className="text-xl font-bold">Work in Japan</h1>
+      <Logo />
       <hr className=" w-24 bg-red-500 h-[2px] border-0 mb-3 mt-5" />
       <ul>
         {links.map((link, index) => (
