@@ -1,4 +1,6 @@
+import { Link } from "react-router-dom";
 import japan from "../assets/Japan.jpg";
+import LinkButton from "./LinkButton";
 
 const Hero = () => {
   return (
@@ -18,9 +20,7 @@ const Hero = () => {
             Discover exciting work opportunities and explore the vibrant
             culture.
           </p>
-          <button className="bg-red-600 hover:bg-red-400 text-white font-bold py-2 px-4 ease-out duration-300 rounded">
-            Explore Jobs
-          </button>
+          <LinkButton to={"/jobs"}>Explore Jobs</LinkButton>
         </div>
       </div>
     </div>
