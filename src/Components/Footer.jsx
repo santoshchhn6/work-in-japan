@@ -1,13 +1,8 @@
-import {
-  FaFacebookF,
-  FaGithub,
-  FaLinkedinIn,
-  FaMapMarkerAlt,
-  FaPhoneAlt,
-  FaTwitter,
-} from "react-icons/fa";
-import { MdEmail } from "react-icons/md";
+import { FaFacebookF, FaGithub, FaLinkedinIn, FaTwitter } from "react-icons/fa";
 import Logo from "./Logo";
+import { Link } from "react-router-dom";
+import { navlist } from "../utils/navList";
+import ContactInfo from "./ContactInfo";
 
 const Footer = () => {
   return (
@@ -32,62 +27,25 @@ const Footer = () => {
 };
 
 const NavLinks = () => {
-  const links = [
-    {
-      title: "Jobs",
-      to: "/",
-    },
-    {
-      title: "About Us",
-      to: "/",
-    },
-    {
-      title: "Contact Us",
-      to: "/",
-    },
-  ];
   return (
     <div className=" w-fit">
       <Logo />
       <hr className=" w-24 bg-red-500 h-[2px] border-0 mb-3 mt-5" />
-      <ul>
-        {links.map((link, index) => (
-          <li
+      <div className="flex flex-col">
+        {navlist.map((link, index) => (
+          <Link
+            to={link.to}
             key={index}
             className="hover:text-red-500 mb-3 ease-out duration-300 cursor-pointer"
           >
             {link.title}
-          </li>
+          </Link>
         ))}
-      </ul>
+      </div>
     </div>
   );
 };
 
-const ContactInfo = () => {
-  return (
-    <div className="space-y-4 flex flex-col justify-center">
-      <IconWithLabel label={"Chuo City, Tokyo 104-0045, Japan"}>
-        <FaMapMarkerAlt />
-      </IconWithLabel>
-      <IconWithLabel label={"+81 1234567890"}>
-        <FaPhoneAlt />
-      </IconWithLabel>
-      <IconWithLabel label={"support@workinjapan.com"}>
-        <MdEmail />
-      </IconWithLabel>
-    </div>
-  );
-};
-
-const IconWithLabel = ({ children, label }) => {
-  return (
-    <div className="flex items-center gap-3 text-xl text-gray-700 ">
-      <div className="bg-gray-300 p-2 rounded-full">{children}</div>
-      <span>{label}</span>
-    </div>
-  );
-};
 const SocialLinks = () => {
   return (
     <div className="flex justify-center">

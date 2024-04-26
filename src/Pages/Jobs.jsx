@@ -1,63 +1,88 @@
 import { useEffect, useState } from "react";
-import { data } from "../data";
 import { useDispatch, useSelector } from "react-redux";
-import { yenFormatter } from "../utils/japaneseCurrency";
 import { setJobDetail } from "../redux/jobDetail";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import LinkButton from "../Components/LinkButton";
-import { formatDate } from "../utils/formatDate";
+import useWindowSize from "../utils/useWindowSize";
+import JobSearch from "../Components/JobSearch";
+import axios from "axios";
+import { setData, setPage, setSearch } from "../redux/jobListSlice";
+// import { data } from "../data";
 
 const Jobs = () => {
+  const dispatch = useDispatch();
   return (
-    <div className="flex gap-5 justify-center">
-      <JobList />
-      <JobDetails />
+    <div>
+      <h2 className="mb-5 text-center text-3xl md:text-3xl font-bold text-gray-500">
+        Explore Jobs
+      </h2>
+      <JobSearch
+        onSubmit={(value) => {
+          console.log(value);
+          dispatch(setSearch(value));
+        }}
+      />
+      <div className="flex gap-5 justify-center">
+        <JobList />
+        <JobDetails />
+      </div>
     </div>
   );
 };
 
 const JobList = () => {
-  const [page, setPage] = useState(1);
-  // const [data, setData] = useState(null);
+  const { search, data } = useSelector((state) => state.jobList);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
 
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(setJobDetail(data[0]));
-  }, []);
+    if (data?.length) {
+      dispatch(setJobDetail(data[0]));
+    } else {
+      dispatch(setJobDetail(null));
+    }
+  }, [data]);
 
-  // const options = {
-  //   method: "GET",
-  //   url: "https://jsearch.p.rapidapi.com/search",
-  //   params: {
-  //     query: "japan",
-  //     page: "1",
-  //     num_pages: "1",
-  //   },
-  //   headers: {
-  //     "X-RapidAPI-Key": import.meta.env.VITE_API_KEY,
-  //     "X-RapidAPI-Host": "jsearch.p.rapidapi.com",
-  //   },
-  // };
+  const options = {
+    method: "GET",
+    url: "https://jobs-api14.p.rapidapi.com/list",
+    params: {
+      query: search,
+      location: "Japan",
+      distance: "1.0",
+      language: "en_GB",
+      remoteOnly: "false",
+      datePosted: "month",
+      employmentTypes: "fulltime;parttime;intern;contractor",
+      index: "0",
+    },
+    headers: {
+      "X-RapidAPI-Key": import.meta.env.VITE_API_KEY,
+      "X-RapidAPI-Host": "jobs-api14.p.rapidapi.com",
+    },
+  };
 
-  // useEffect(() => {
-  //   const fetchJobs = async () => {
-  //     try {
-  //       setLoading(true);
-  //       const response = await axios.request(options);
-  //       setData(response.data.data);
-  //       console.log(response.data);
-  //       setLoading(false);
-  //     } catch (error) {
-  //       setLoading(false);
-  //       setError(error);
-  //       console.error(error);
-  //     }
-  //   };
-  //   fetchJobs();
-  // }, []);
+  useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.request(options);
+        dispatch(setData(response.data.jobs));
+
+        console.log(response);
+        setLoading(false);
+      } catch (error) {
+        setLoading(false);
+        setError(error);
+        console.error(error);
+      }
+    };
+    if (search) {
+      fetchJobs();
+    }
+  }, [search]);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -67,10 +92,14 @@ const JobList = () => {
     return <div>Error:{error?.message}</div>;
   }
 
+  if (!data?.length) {
+    return <span className="text-3xl">No Results</span>;
+  }
+
   return (
     <div className="flex flex-col gap-5">
       {data?.map((job) => (
-        <Job key={job?.job_id} data={job} />
+        <Job key={job?.id} data={job} />
       ))}
     </div>
   );
@@ -78,126 +107,85 @@ const JobList = () => {
 
 const Job = ({ data }) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const size = useWindowSize();
 
   return (
     <div
-      onClick={() => dispatch(setJobDetail(data))}
-      className="w-96 border-2 rounded-lg shadow-md p-5 hover:scale-105 ease-out duration-300 cursor-pointer bg-white"
+      onClick={() => {
+        dispatch(setJobDetail(data));
+        if (size.width < 768) {
+          navigate("/job_detail");
+        }
+      }}
+      className="w-[95vw] sm:w-96 space-y-3 border-2 rounded-lg shadow-md p-5 hover:scale-105 ease-out duration-300 cursor-pointer bg-white"
     >
-      <h1 className="text-xl font-bold text-gray-700">{data?.job_title}</h1>
-      {data?.job_naics_name ? (
-        <h3 className="my-3 text-gray-700 truncate">{data?.job_naics_name}</h3>
+      <h1 className="text-2xl font-bold text-gray-700">{data?.title}</h1>
+
+      {data?.company ? (
+        <h3 className=" text-gray-700 truncate font-bold">{data?.company}</h3>
       ) : null}
 
-      {data?.job_city ? (
-        <div className="flex gap-3 my-3 text-gray-700">
-          {data?.job_city ? <p>{data?.job_city}</p> : null}
-          {data?.job_state ? <p>{data?.job_state}</p> : null}
-        </div>
+      <p>{data?.location}</p>
+
+      <p className="line-clamp-3 text-gray-500">{data?.description}</p>
+
+      {data?.salaryRange ? (
+        <p className="text-sm text-gray-500 font-bold rounded-sm bg-gray-300 w-fit py-1 px-2">
+          {data?.salaryRange}
+        </p>
       ) : null}
 
-      {data?.job_is_remote ? (
-        <p className="my-3 text-green-700">Remote</p>
-      ) : null}
-
-      <p className="line-clamp-3 my-3 text-gray-500">{data?.job_description}</p>
       <p className="text-sm text-green-700 font-bold bg-green-200 rounded-sm w-fit py-1 px-2">
-        {data?.job_employment_type}
+        {data?.employmentType}
       </p>
-
-      {data?.job_min_salary ? (
-        <div className="mt-3 text-sm text-gray-500 font-bold rounded-sm bg-gray-300 w-fit py-1 px-2">
-          <span>{yenFormatter.format(data?.job_min_salary)}</span>
-          <span> - {yenFormatter.format(data?.job_max_salary)}</span>
-        </div>
-      ) : null}
     </div>
   );
 };
 
 const JobDetails = () => {
   const { job: data } = useSelector((state) => state.jobDetail);
-  return (
-    <div className="w-[600px] h-fit border-2 rounded-lg shadow-md p-5 bg-white sticky top-0 right-0">
-      {/* <h1 className="text-3xl font-fold text-gray-600">
-        {data?.job_job_title}
-      </h1> */}
-      <h1 className="mb-3 text-3xl font-bold text-gray-700">
-        {data?.job_title}
-      </h1>
-      {data?.job_naics_name ? (
-        <h3 className="mb-3 text-gray-700 ">{data?.job_naics_name}</h3>
-      ) : null}
 
-      {/* job_publisher: "Startup Jobs" */}
-      <p className="mb-3 text-gray-500 font-bold cursor-pointer">
-        {data?.job_publisher}
+  if (!data?.id) return <></>;
+  return (
+    <div className="hidden md:block w-[600px] h-fit border-2 space-y-3 rounded-lg shadow-md p-5 bg-white sticky top-0 right-0">
+      <h1 className="text-3xl font-bold text-gray-700">{data?.title}</h1>
+
+      <h3 className=" text-gray-700 font-bold">{data?.company}</h3>
+
+      <p className=" text-gray-500 font-bold cursor-pointer">
+        {data?.jobProviders[0].jobProviders}
       </p>
 
-      {data?.job_is_remote ? (
-        <p className="my-3 text-green-700">Remote</p>
-      ) : null}
+      <p className="">{data?.location}</p>
 
-      {data?.job_city ? (
-        <div className="flex gap-3 mb-5 text-gray-700">
-          {data?.job_city ? <p>{data?.job_city}</p> : null}
-          {data?.job_state ? <p>{data?.job_state}</p> : null}
-        </div>
-      ) : null}
-      <LinkButton to={data?.job_apply_link}>Apply</LinkButton>
+      <div className="my-5">
+        <LinkButton to={data?.jobProviders[0].url}>Apply</LinkButton>
+      </div>
 
-      <div className="mt-5 pr-3 pt-3 border-t-2 h-[50vh] overflow-y-auto">
-        {/* <p>Country:{data?.job_country}</p> */}
+      <div className="space-y-3 mt-5 pr-3 pt-3 border-t-2 h-[70vh]  overflow-y-auto">
         <h2 className="text-2xl font-bold text-gray-600 ">Job Description</h2>
-        <p className=" my-3 text-gray-500">{data?.job_description}</p>
-        <p className="mb-3 font-bold text-gray-600">
-          Job Type:
-          <span className="ml-3 text-sm text-green-700 font-bold bg-green-200 rounded-sm w-fit py-1 px-2">
-            {data?.job_employment_type}
+        <pre className="text-sm my-3 text-gray-500 whitespace-pre-wrap font-sans">
+          {data?.description}
+        </pre>
+        {data?.salaryRange ? (
+          <p>
+            <span className="font-bold text-gray-600">Salary :</span>{" "}
+            <span className="text-sm text-gray-500 font-bold rounded-sm bg-gray-300 w-fit py-1 px-2">
+              {data?.salaryRange}
+            </span>
+          </p>
+        ) : null}
+        <p>
+          <span className="font-bold text-gray-600">Job type :</span>{" "}
+          <span className="text-sm text-green-700 font-bold bg-green-200 rounded-sm w-fit py-1 px-2">
+            {data?.employmentType}
           </span>
         </p>
-
-        {data?.job_benefits ? (
-          <p className="mb-3 font-bold text-gray-600">
-            Benefit:
-            <span className="ml-3 font-normal text-gray-500">
-              {data?.job_benefits}
-            </span>
-          </p>
-        ) : null}
-
-        {data?.job_required_skills ? (
-          <p className="mb-3 font-bold text-gray-600">
-            Required Skills:
-            <span className="ml-3 font-normal text-gray-500">
-              {data?.job_required_skills}
-            </span>
-          </p>
-        ) : null}
-
-        {data?.job_min_salary ? (
-          <div className="mb-3 font-bold text-gray-600 flex">
-            Salary :
-            <div className="ml-3 font-normal text-gray-500">
-              <span>{yenFormatter.format(data?.job_min_salary)}</span>
-              <span> - {yenFormatter.format(data?.job_max_salary)}</span>
-            </div>
-          </div>
-        ) : null}
-
-        {data?.job_posted_at_datetime_utc ? (
-          <p className="mb-3 font-bold text-gray-600">
-            Posted at :
-            <span className="ml-3 font-normal text-gray-500">
-              {formatDate(data?.job_posted_at_datetime_utc)}
-            </span>
-          </p>
-        ) : null}
-
-        {/* job_latitude: 35.676422 */}
-        {/* job_longitude: 139.65002 */}
-        {/* job_posted_at_datetime_utc: "2024-04-23T10:28:31.000Z" */}
-        {/* job_posted_at_timestamp: 1713868111 */}
+        <p>
+          <span className="font-bold text-gray-600">Job Posted on :</span>{" "}
+          {data?.datePosted}
+        </p>
       </div>
     </div>
   );

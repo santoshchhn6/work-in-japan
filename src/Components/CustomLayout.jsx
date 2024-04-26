@@ -1,7 +1,7 @@
 const CustomLayout = ({ heading, lists }) => {
   return (
     <section className=" ">
-      <h2 className="my-10 md:my-16 text-center text-3xl md:text-5xl font-bold text-gray-600">
+      <h2 className="my-5 md:my-16 text-center text-3xl md:text-5xl font-bold text-gray-500">
         {heading}
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -26,8 +26,8 @@ const Panel = ({ title, desc, img }) => {
         alt=""
         className="w-full aspect-[5/3] object-cover rounded-md"
       />
-      <h3 className="my-3 text-xl font-semibold text-gray-800">{title}</h3>
-      <p className="text-gray-700">{desc}</p>
+      <h3 className="my-3 text-xl font-semibold text-gray-700">{title}</h3>
+      <p className="text-gray-600">{desc}</p>
     </div>
   );
 };
