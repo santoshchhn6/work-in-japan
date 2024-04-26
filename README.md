@@ -1,6 +1,6 @@
 # Work opportunity in Japan (Assignment)
 
-# Library
+## Library
 
 1. axios : for fetching data
 2. react-router-dom: for routing
